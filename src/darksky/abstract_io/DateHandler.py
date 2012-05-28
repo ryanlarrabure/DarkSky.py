@@ -9,8 +9,8 @@ class DateHandler(object):
         timedelta = None
     ):
         self.__utcfromtimestamp = datetime_mod.datetime.utcfromtimestamp
-        self.__utcnow = datetime_mod.datetime.utcnow()
-        self.__timedelta = date
+        self.__utcnow = datetime_mod.datetime.utcnow
+        self.__timedelta = datetime_mod.timedelta
 
     def toDatetime(
         self,
@@ -18,8 +18,8 @@ class DateHandler(object):
     ):
         return self.__utcfromtimestamp(unixtime)
 
-    def currentTime():
+    def currentTime(self):
         return self.__utcnow()
 
-    def getTimeDelta(*args, **kwargs):
+    def getTimeDelta(self, *args, **kwargs):
         return self.__timedelta(*args, **kwargs)

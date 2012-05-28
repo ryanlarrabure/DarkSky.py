@@ -11,7 +11,7 @@ class DarkSkyResponse(object):
         self.__response_body = response_body
         self.forecast_type = forecast_type
         self.__datehandler = datehandler or DateHandler()
-        self.__setInstantiationTime()
+        self.__setCurrentTime()
         self.__setProperties()
 
     def __setCurrentTime(self):
@@ -26,13 +26,31 @@ class DarkSkyResponse(object):
                 entry["time"] = self.__datehandler.toDatetime(entry["time"])
 
     def  __setProperties(self):
+        exclusions = ['hourSummary']
         for prop in self.__response_body.keys():
-            self.__setattr__(prop, self.__response_body[prop])
+            if prop not in exclusions:
+                self.__setattr__(prop, self.__response_body[prop])
         self.__setTimes() 
 
+    @property
+    def hourSummary(self):
+        time_field = ""
+        if self.__datehandler.currentTime() >= self.getTimeToChange():
+            return "{} for 0 minutes".format(self.currentSummary)
+        delta = (self.getTimeToChange() - self.__datehandler.currentTime()).seconds / 60
+        return "{} for {} minutes".format(
+            self.currentSummary,
+            delta
+        )
+
     def getTimeToChange(self):
-        mins_to_change = self.__timehandler.getTimeDelta(minutes=self.minutesToChange)
+        mins_to_change = self.__datehandler.getTimeDelta(minutes=self.minutesUntilChange)
         return self.__instantiation_time + mins_to_change
+
+    def getTimeToTimeout(self):
+        secs_to_change = self.__datehandler.getTimeDelta(seconds=self.checkTimeout)
+        return self.__instantiation_time + secs_to_change
+
 
 class DarkSky(object):
 

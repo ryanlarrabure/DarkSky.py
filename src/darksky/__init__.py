@@ -1,1 +1,1 @@
-from DarkSky import DarkSky, DarkSkyException, DarkSkyResponse
+from DarkSky import DarkSky, DarkSkyResponse
