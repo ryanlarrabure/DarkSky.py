@@ -53,6 +53,7 @@ class DarkSkyResponse(object):
 
 
 class DarkSky(object):
+    darksky_url = "https://api.darkskyapp.com"
 
     def __init__(
         self,
@@ -73,7 +74,8 @@ class DarkSky(object):
                 forecast_type="forecast"
     ):
         response_code, response_body = self.__http.open(
-            url = "https://api.darkskyapp.com/{}/{}/{}/{},{}".format(
+            url = "{}/{}/{}/{}/{},{}".format(
+                self.darksky_url,
                 self.__api_version,
                 forecast_type,
                 self.__api_key,
@@ -85,3 +87,35 @@ class DarkSky(object):
             response_body=self.__json_loads(response_body),
             forecast_type=forecast_type
         )
+
+    def getInteresting(self):
+        response_code, response_body = self.__http.open(
+            url = "{}/{}/interesting/{}".format(
+                self.darksky_url,
+                self.__api_version,
+                self.__api_key
+            )
+        )
+        parsed_body = self.__json_loads(response_body)
+        return parsed_body["storms"]
+    
+    def getWeathers(
+        self,
+        points
+    ):
+        point_params = ""
+        for point in points:
+            out = "{},{}".format(point["latitude"], point["longitude"])
+            if "time" in points:
+                out = "{},{}".format(out, point["time"])
+            point_params = "{}{};".format(point_params, out)
+        point_params.rstrip(";")
+        response_code, response_body = self.__http.open(
+            url = "{}/{}/interesting/{}".format(
+                self.darksky_url,
+                self.__api_version,
+                self.__api_key
+            )
+        )
+        parsed_body = self.__json_loads(response_body)
+        return parsed_body["precipitation"]
