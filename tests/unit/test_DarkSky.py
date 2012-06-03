@@ -68,3 +68,53 @@ def test_getWeather_failure():
         1234,
         "brief"
     )
+
+def test_getInteresting():
+    mock_http = mock.Mock()
+    instance = DarkSky(
+        api_key="abc",
+        http_interface=mock_http
+    )
+    mock_http.open.return_value = (
+        200,
+        json.dumps(
+            {
+                "storms": {
+                    "data": True
+                }
+            }
+        )
+    )
+
+    yield (
+        assert_equals,
+        True,
+        instance.getInteresting()["data"]
+    )
+    
+    yield (
+        assert_equals,
+        "https://api.darkskyapp.com/v1/interesting/abc",
+        mock_http.open.call_args[1]["url"]
+    )
+
+def test_getInteresting_failure():
+    mock_http = mock.Mock()
+    instance = DarkSky(
+        api_key="abc",
+        http_interface=mock_http
+    )
+    mock_http.open.return_value = (
+        403,
+        json.dumps(
+            {
+                "code": 403,
+                "error": "Forbidden"
+            }
+        )
+    )
+    yield (
+        assert_raises,
+        DarkSkyException,
+        instance.getInteresting
+    )
