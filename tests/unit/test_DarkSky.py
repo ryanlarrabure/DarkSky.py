@@ -47,11 +47,9 @@ def test_getWeather_success():
 
 def test_getWeather_failure():
     mock_http = mock.Mock()
-    mock_dsresponse = mock.Mock()
     instance = DarkSky(
         api_key="abc",
-        http_interface=mock_http,
-        DarkSkyResponseClass=mock_dsresponse
+        http_interface=mock_http
     )
     mock_http.open.return_value = (
         403,
