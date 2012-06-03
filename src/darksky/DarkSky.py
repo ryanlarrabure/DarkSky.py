@@ -1,6 +1,9 @@
 import json
 from abstract_io import HTTP, DateHandler
 
+class DarkSkyException(Exception):
+    pass
+
 class DarkSkyResponse(object):
     def __init__(
         self,
@@ -37,18 +40,24 @@ class DarkSkyResponse(object):
         time_field = ""
         if self.__datehandler.currentTime() >= self.getTimeToChange():
             return "{} for 0 minutes".format(self.currentSummary)
-        delta = (self.getTimeToChange() - self.__datehandler.currentTime()).seconds / 60
+        delta = (self.getTimeToChange()
+                 - self.__datehandler.currentTime()
+        ).seconds / 60
         return "{} for {} minutes".format(
             self.currentSummary,
             delta
         )
 
     def getTimeToChange(self):
-        mins_to_change = self.__datehandler.getTimeDelta(minutes=self.minutesUntilChange)
+        mins_to_change = self.__datehandler.getTimeDelta(
+            minutes=self.minutesUntilChange
+        )
         return self.__instantiation_time + mins_to_change
 
     def getTimeToTimeout(self):
-        secs_to_change = self.__datehandler.getTimeDelta(seconds=self.checkTimeout)
+        secs_to_change = self.__datehandler.getTimeDelta(
+            seconds=self.checkTimeout
+        )
         return self.__instantiation_time + secs_to_change
 
 
@@ -61,11 +70,24 @@ class DarkSky(object):
         api_version="v1",
         http_interface = None,
         json_loads = None,
+        DarkSkyResponseClass = None
     ):
         self.__api_key = api_key
         self.__api_version = api_version
         self.__http = http_interface or HTTP()
         self.__json_loads = json_loads or json.loads
+        self.DarkSkyResponse = DarkSkyResponseClass or DarkSkyResponse
+
+    def __checkResponse(self, response_code, response_body):
+        if response_code == 403:
+            raise DarkSkyException("Invalid ApiKey presented")
+        elif response_code != 200:
+            raise DarkSkyException(
+                "Expected '200' response; got '{}': {}".format(
+                    response_code,
+                    response_body
+                )
+            )
     
     def getWeather(
                 self,
@@ -83,7 +105,8 @@ class DarkSky(object):
                 longitude
             )
         )
-        return DarkSkyResponse(
+        self.__checkResponse(response_code, response_body)
+        return self.DarkSkyResponse(
             response_body=self.__json_loads(response_body),
             forecast_type=forecast_type
         )
@@ -96,6 +119,7 @@ class DarkSky(object):
                 self.__api_key
             )
         )
+        self.__checkResponse(response_code, response_body)
         parsed_body = self.__json_loads(response_body)
         return parsed_body["storms"]
     
@@ -117,5 +141,6 @@ class DarkSky(object):
                 self.__api_key
             )
         )
+        self.__checkResponse(response_code, response_body)
         parsed_body = self.__json_loads(response_body)
         return parsed_body["precipitation"]
