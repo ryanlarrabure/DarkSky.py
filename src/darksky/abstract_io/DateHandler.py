@@ -8,9 +8,11 @@ class DateHandler(object):
         utcnow = None,
         timedelta = None
     ):
-        self.__utcfromtimestamp = datetime_mod.datetime.utcfromtimestamp
-        self.__utcnow = datetime_mod.datetime.utcnow
-        self.__timedelta = datetime_mod.timedelta
+        self.__utcfromtimestamp = (
+            utcfromtimestamp or datetime_mod.datetime.utcfromtimestamp
+        )
+        self.__utcnow = utcnow or datetime_mod.datetime.utcnow
+        self.__timedelta = timedelta or datetime_mod.timedelta
 
     def toDatetime(
         self,
