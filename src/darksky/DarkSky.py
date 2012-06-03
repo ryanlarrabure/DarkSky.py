@@ -76,7 +76,7 @@ class DarkSky(object):
         self.__api_version = api_version
         self.__http = http_interface or HTTP()
         self.__json_loads = json_loads or json.loads
-        self.DarkSkyResponse = DarkSkyResponseClass or DarkSkyResponse
+        self.__DarkSkyResponse = DarkSkyResponseClass or DarkSkyResponse
 
     def __checkResponse(self, response_code, response_body):
         if response_code == 403:
@@ -106,7 +106,7 @@ class DarkSky(object):
             )
         )
         self.__checkResponse(response_code, response_body)
-        return self.DarkSkyResponse(
+        return self.__DarkSkyResponse(
             response_body=self.__json_loads(response_body),
             forecast_type=forecast_type
         )
