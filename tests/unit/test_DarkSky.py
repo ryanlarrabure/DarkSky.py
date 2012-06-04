@@ -118,3 +118,58 @@ def test_getInteresting_failure():
         DarkSkyException,
         instance.getInteresting
     )
+
+def test_getWeathers():
+    mock_http = mock.Mock()
+    instance = DarkSky(
+        api_key="abc",
+        http_interface=mock_http
+    )
+    mock_http.open.return_value = (
+        200,
+        json.dumps(
+            {
+              "precipitation": [
+                { "probability": 1.0,
+                  "intensity": 15.6,
+                  "error": 1.0,
+                  "type": "rain",
+                  "time": 1325607100 },
+                { "probability": 0.0,
+                  "intensity": 0.0,
+                  "error": 0.0,
+                  "type": "rain",
+                  "time": 1325607791 }
+              ]
+            }
+        )
+    )
+    ret = instance.getWeathers(
+        [
+            {
+                "latitude": 12345.11,
+                "longitude": 12345.12,
+                "time": 12344
+            },
+            {
+                "latitude": 12345.13,
+                "longitude": 12345.14,
+                "time": 12346
+            }
+        ]
+    )
+    yield (
+        assert_equals,
+        15.6,
+        ret[0]["intensity"]
+    )
+    yield (
+        assert_equals,
+        0,
+        ret[1]["intensity"]
+    )
+    yield (
+        assert_equals,
+        "https://api.darkskyapp.com/v1/precipitation/abc/12345.11,12345.12,12344;12345.13,12345.14,12346",
+        mock_http.open.call_args[1]["url"]
+    )

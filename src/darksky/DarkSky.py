@@ -130,15 +130,16 @@ class DarkSky(object):
         point_params = ""
         for point in points:
             out = "{},{}".format(point["latitude"], point["longitude"])
-            if "time" in points:
+            if "time" in point:
                 out = "{},{}".format(out, point["time"])
             point_params = "{}{};".format(point_params, out)
-        point_params.rstrip(";")
+        point_params = point_params.rstrip(";")
         response_code, response_body = self.__http.open(
-            url = "{}/{}/interesting/{}".format(
+            url = "{}/{}/precipitation/{}/{}".format(
                 self.darksky_url,
                 self.__api_version,
-                self.__api_key
+                self.__api_key,
+                point_params
             )
         )
         self.__checkResponse(response_code, response_body)
