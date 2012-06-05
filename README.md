@@ -28,16 +28,20 @@ ds_interface = darksky.DarkSky("api_key_goes_here")
 The following methods are implemented on the interface object:
 
 - getWeather; for getting the weather on a particular location (returns a DarkSkyResponse object)
+
 ```python
 current_weather = ds_interface.getWeather(
     latitude=1234.00,
     longitude=1235.11
 )
 ```
+
 - getInteresting; get a list of interesting storms
 - getWeather; get weather for multiple points. With optional time elements.
+
 ```python
 import datetime
+
 conditions = ds_interface.getWeathers(
     points=[
         {
@@ -64,11 +68,11 @@ conditions = ds_interface.getWeathers(
 
 ## Running the tests
 
-1) Install the requirements (not included in setup.py)
+1. Install the requirements (not included in setup.py)
 
     pip install -r requirements.txt
 
-2) From the src directory, execute the tests
+2. From the src directory, execute the tests
 
     nosetests ../tests/*
 
