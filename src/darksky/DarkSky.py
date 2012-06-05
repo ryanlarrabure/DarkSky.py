@@ -37,6 +37,12 @@ class DarkSkyResponse(object):
 
     @property
     def hourSummary(self):
+        """Give the current hour summary.
+
+        Dynamic property.  Will always return the time to change relative to
+        the time of accessing the property.
+        
+        """
         time_field = ""
         if self.__datehandler.currentTime() >= self.getTimeToChange():
             return "{} for 0 minutes".format(self.currentSummary)
@@ -49,12 +55,22 @@ class DarkSkyResponse(object):
         )
 
     def getTimeToChange(self):
+        """Calculate the time to change.
+        
+        Returns the timedelta between now and the time to change.
+        
+        """
         mins_to_change = self.__datehandler.getTimeDelta(
             minutes=self.minutesUntilChange
         )
         return self.__instantiation_time + mins_to_change
 
     def getTimeToTimeout(self):
+        """Calculate the time to timeout.
+
+        Returns the timedelta between now and the time to timeout.
+
+        """
         secs_to_change = self.__datehandler.getTimeDelta(
             seconds=self.checkTimeout
         )
@@ -70,13 +86,19 @@ class DarkSky(object):
         api_version="v1",
         http_interface = None,
         json_loads = None,
-        DarkSkyResponseClass = None
+        DarkSkyResponseClass = None,
+        datehandler = None
     ):
+        """
+        api_key -- DarkSky api key
+        api_version -- DarkSky api version (default: 'v1')
+        """
         self.__api_key = api_key
         self.__api_version = api_version
         self.__http = http_interface or HTTP()
         self.__json_loads = json_loads or json.loads
         self.__DarkSkyResponse = DarkSkyResponseClass or DarkSkyResponse
+        self.__datehandler = datehandler or DateHandler()
 
     def __checkResponse(self, response_code, response_body):
         if response_code == 403:
@@ -95,6 +117,15 @@ class DarkSky(object):
                 longitude,
                 forecast_type="forecast"
     ):
+        """Get current weather for a location.
+        
+        Returns a DarkSkyResponse object.
+
+        latitude -- latitude
+        longitude -- longitude 
+        forecast_type -- 'forecast' or 'brief' (default: forecast)
+        
+        """
         response_code, response_body = self.__http.open(
             url = "{}/{}/{}/{}/{},{}".format(
                 self.darksky_url,
@@ -112,6 +143,11 @@ class DarkSky(object):
         )
 
     def getInteresting(self):
+        """Get interesting weather.
+
+        Returns a list of storms.
+
+        """
         response_code, response_body = self.__http.open(
             url = "{}/{}/interesting/{}".format(
                 self.darksky_url,
@@ -127,11 +163,23 @@ class DarkSky(object):
         self,
         points
     ):
+        """Get weather for multiple points.
+            
+        Points should be an iterable object of dicts.  The required dict fields
+        are 'latitude' and 'longitude', both longs.  'time' is an optional
+        argument, in DateTime format.
+        
+        points -- iterable object of coordinates and optional times
+
+        """
         point_params = ""
         for point in points:
             out = "{},{}".format(point["latitude"], point["longitude"])
             if "time" in point:
-                out = "{},{}".format(out, point["time"])
+                converted_time = self.__datehandler.timeTupleToUnix(
+                    point["time"].utctimetuple()
+                )
+                out = "{},{}".format(out, converted_time)
             point_params = "{}{};".format(point_params, out)
         point_params = point_params.rstrip(";")
         response_code, response_body = self.__http.open(

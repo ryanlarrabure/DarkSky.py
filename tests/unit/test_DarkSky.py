@@ -3,6 +3,7 @@ from nose.tools import assert_equals, assert_raises
 from darksky import DarkSky
 from darksky import DarkSkyException
 import json
+import datetime
 
 def test_getWeather_success():
     mock_http = mock.Mock()
@@ -144,17 +145,27 @@ def test_getWeathers():
             }
         )
     )
+    time1 = datetime.datetime(
+        year=1999,
+        month=12,
+        day=1
+    )
+    time2 = datetime.datetime(
+        year=1995,
+        month=12,
+        day=1,
+    )
     ret = instance.getWeathers(
         [
             {
                 "latitude": 12345.11,
                 "longitude": 12345.12,
-                "time": 12344
+                "time": time1
             },
             {
                 "latitude": 12345.13,
                 "longitude": 12345.14,
-                "time": 12346
+                "time": time2
             }
         ]
     )
@@ -170,6 +181,6 @@ def test_getWeathers():
     )
     yield (
         assert_equals,
-        "https://api.darkskyapp.com/v1/precipitation/abc/12345.11,12345.12,12344;12345.13,12345.14,12346",
+        "https://api.darkskyapp.com/v1/precipitation/abc/12345.11,12345.12,944006400;12345.13,12345.14,817776000",
         mock_http.open.call_args[1]["url"]
     )
