@@ -1,14 +1,14 @@
-import urllib2
+import requests
 
 class HTTP(object):
 
     def __init__ (
         self,
-        urllib2_mod = None
+        get = None
     ):
-        self.urllib2 = urllib2_mod or urllib2
+        self.get = get or requests.get
 
     
     def open(self, url):
-        request = self.urllib2.urlopen(url)
-        return request.getcode(), request.read()
+        request = self.get(url)
+        return request.status_code, request.text
