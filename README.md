@@ -4,7 +4,7 @@ DarkSky.py is a Python interface to the DarkSky REST api.
 
 ## Requirements
 
-Python 2.7.
+- Python 2.7
 
 ## Installation
 
@@ -16,6 +16,8 @@ That will pull in all the dependencies.
 
 
 ## Usage
+
+### Using the DarkSky interface
 
 Instantiate the DarkSky interface:
 
@@ -45,18 +47,18 @@ import datetime
 conditions = ds_interface.getWeathers(
     points=[
         {
-            latitude=1234.0,
-            longitude=1234.11,
-            time=datetime.datetime(
+            "latitude":1234.0,
+            "longitude":1234.11,
+            "time":datetime.datetime(
                 year=2012,
                 month=6,
                 day=4
             )
         },
         {
-            latitude=1235.0,
-            longitude=1235.11,
-            time=datetime.datetime(
+            "latitude":1235.0,
+            "longitude":1235.11,
+            "time":datetime.datetime(
                 year=2012,
                 month=6,
                 day=3
@@ -65,6 +67,29 @@ conditions = ds_interface.getWeathers(
     ]
 )
 ```
+
+### Using the DarkSkyResponse object
+
+The DarkSkyResponse object has all the response properties set as object properties:
+
+    >>> ds_response.currentTemp
+    75
+    >>> ds_response.currentSummary
+    'light rain'
+    >>> ds_response.hourSummary
+    'light rain for 13 minutes'
+    >>> ds_response.isPrecipitating
+    True
+    >>> cw.dayPrecipitation[0]
+    {'type': 'rain', 'temp': 74, 'probability': 0.5586104718059857, 'time': datetime.datetime(2012, 5, 28, 14, 0)}
+
+Note that dates are native Python date objects.  This also allows the special methods:
+
+- getTimeToChange; return the time the change is predicted to occur
+- getTimeToTimeout; return the time to the timeout
+
+The hourSummary property is dynamic.  It will always be represented as the time from now until the event is to take place.  If you attempt to access it after the event has taken place, it will read "event for 0 minutes".
+
 
 ## Running the tests
 
