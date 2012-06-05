@@ -90,6 +90,15 @@ Note that dates are native Python date objects.  This also allows the special me
 
 The hourSummary property is dynamic.  It will always be represented as the time from now until the event is to take place.  If you attempt to access it after the event has taken place, it will read "event for 0 minutes".
 
+For example:
+
+    >>> cw.hourSummary
+    'light rain for 13 minutes'
+
+Two minutes later:
+
+    >>> cw.hourSummary
+    'light rain for 11 minutes'
 
 ## Running the tests
 
