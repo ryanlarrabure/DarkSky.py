@@ -2,6 +2,76 @@
 
 DarkSky.py is a Python interface to the DarkSky REST api.
 
+## Requirements
+
+Python 2.7.
+
+## Installation
+
+From the root of the repo:
+
+    easy_install ./
+
+That will pull in all the dependencies.
+
+
+## Usage
+
+Instantiate the DarkSky interface:
+
+```python
+import darksky
+
+ds_interface = darksky.DarkSky("api_key_goes_here")
+```
+
+The following methods are implemented on the interface object:
+
+- getWeather; for getting the weather on a particular location (returns a DarkSkyResponse object)
+```python
+current_weather = ds_interface.getWeather(
+    latitude=1234.00,
+    longitude=1235.11
+)
+```
+- getInteresting; get a list of interesting storms
+- getWeather; get weather for multiple points. With optional time elements.
+```python
+import datetime
+conditions = ds_interface.getWeathers(
+    points=[
+        {
+            latitude=1234.0,
+            longitude=1234.11,
+            time=datetime.datetime(
+                year=2012,
+                month=6,
+                day=4
+            )
+        },
+        {
+            latitude=1235.0,
+            longitude=1235.11,
+            time=datetime.datetime(
+                year=2012,
+                month=6,
+                day=3
+            )
+        },
+    ]
+)
+```
+
+## Running the tests
+
+1) Install the requirements (not included in setup.py)
+
+    pip install -r requirements.txt
+
+2) From the src directory, execute the tests
+
+    nosetests ../tests/*
+
 ## License
 
 Copyright (c) 2012, Ryan Larrabure
