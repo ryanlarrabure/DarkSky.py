@@ -156,16 +156,19 @@ class DarkSky(object):
         Returns a list of storms.
 
         """
-        response_code, response_body = self.__http.open(
-            url = "{}/{}/interesting/{}".format(
-                self.darksky_url,
-                self.__api_version,
-                self.__api_key
-            )
+        url = "{}/{}/interesting/{}".format(
+            self.darksky_url,
+            self.__api_version,
+            self.__api_key
         )
-        self.__checkResponse(response_code, response_body)
-        parsed_body = self.__json_loads(response_body)
-        return parsed_body["storms"]
+        try:
+            return self.__cache.get(url)
+        except KeyError:
+            response_code, response_body = self.__http.open(url)
+            self.__checkResponse(response_code, response_body)
+            parsed_body = self.__json_loads(response_body)
+            self.__cache.insert(url, parsed_body["storms"], 600)
+            return parsed_body["storms"]
     
     def getWeathers(
         self,
@@ -190,14 +193,17 @@ class DarkSky(object):
                 out = "{},{}".format(out, converted_time)
             point_params = "{}{};".format(point_params, out)
         point_params = point_params.rstrip(";")
-        response_code, response_body = self.__http.open(
-            url = "{}/{}/precipitation/{}/{}".format(
-                self.darksky_url,
-                self.__api_version,
-                self.__api_key,
-                point_params
-            )
+        url = "{}/{}/precipitation/{}/{}".format(
+            self.darksky_url,
+            self.__api_version,
+            self.__api_key,
+            point_params
         )
-        self.__checkResponse(response_code, response_body)
-        parsed_body = self.__json_loads(response_body)
-        return parsed_body["precipitation"]
+        try:
+            return self.__cache.get(url)
+        except KeyError:
+            response_code, response_body = self.__http.open(url)
+            self.__checkResponse(response_code, response_body)
+            parsed_body = self.__json_loads(response_body)
+            self.__cache.insert(url, parsed_body["precipitation"], 600)
+            return parsed_body["precipitation"]
