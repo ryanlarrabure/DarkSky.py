@@ -1,5 +1,5 @@
 import json
-from abstract_io import HTTP, DateHandler
+from abstract_io import HTTP, DateHandler, MemoryCache
 
 class DarkSkyException(Exception):
     pass
@@ -87,7 +87,8 @@ class DarkSky(object):
         http_interface = None,
         json_loads = None,
         DarkSkyResponseClass = None,
-        datehandler = None
+        datehandler = None,
+        cache = None
     ):
         """
         api_key -- DarkSky api key
@@ -99,6 +100,7 @@ class DarkSky(object):
         self.__json_loads = json_loads or json.loads
         self.__DarkSkyResponse = DarkSkyResponseClass or DarkSkyResponse
         self.__datehandler = datehandler or DateHandler()
+        self.__cache = cache or MemoryCache(timeout=3600)
 
     def __checkResponse(self, response_code, response_body):
         if response_code == 403:
@@ -126,21 +128,27 @@ class DarkSky(object):
         forecast_type -- 'forecast' or 'brief' (default: forecast)
         
         """
-        response_code, response_body = self.__http.open(
-            url = "{}/{}/{}/{}/{},{}".format(
-                self.darksky_url,
-                self.__api_version,
-                forecast_type,
-                self.__api_key,
-                latitude,
-                longitude
+        key = "{},{},{}".format(latitude,longitude,forecast_type)
+        try:
+            return self.__cache.get(key)
+        except KeyError:
+            response_code, response_body = self.__http.open(
+                url = "{}/{}/{}/{}/{},{}".format(
+                    self.darksky_url,
+                    self.__api_version,
+                    forecast_type,
+                    self.__api_key,
+                    latitude,
+                    longitude
+                )
             )
-        )
-        self.__checkResponse(response_code, response_body)
-        return self.__DarkSkyResponse(
-            response_body=self.__json_loads(response_body),
-            forecast_type=forecast_type
-        )
+            self.__checkResponse(response_code, response_body)
+            resp = self.__DarkSkyResponse(
+                response_body=self.__json_loads(response_body),
+                forecast_type=forecast_type
+            )
+            self.__cache.insert(key, resp, resp.checkTimeout)
+            return resp
 
     def getInteresting(self):
         """Get interesting weather.
