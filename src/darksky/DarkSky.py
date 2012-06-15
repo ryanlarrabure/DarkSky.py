@@ -164,7 +164,7 @@ class DarkSky(object):
         try:
             return self.__cache.get(url)
         except KeyError:
-            response_code, response_body = self.__http.open(url)
+            response_code, response_body = self.__http.open(url=url)
             self.__checkResponse(response_code, response_body)
             parsed_body = self.__json_loads(response_body)
             self.__cache.insert(url, parsed_body["storms"], 600)
@@ -202,7 +202,7 @@ class DarkSky(object):
         try:
             return self.__cache.get(url)
         except KeyError:
-            response_code, response_body = self.__http.open(url)
+            response_code, response_body = self.__http.open(url=url)
             self.__checkResponse(response_code, response_body)
             parsed_body = self.__json_loads(response_body)
             self.__cache.insert(url, parsed_body["precipitation"], 600)

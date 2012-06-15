@@ -8,7 +8,7 @@ import datetime
 def test_getWeather_success():
     mock_http = mock.Mock()
     mock_dsresponse = mock.Mock()
-    mock_dsresponse.return_value = "something"
+    mock_dsresponse.return_value.checkTimeout = 323
     instance = DarkSky(
         api_key="abc",
         http_interface=mock_http,
@@ -24,7 +24,7 @@ def test_getWeather_success():
     
     yield (
         assert_equals,
-        "something",
+        mock_dsresponse.return_value,
         ret_val
     )
 
