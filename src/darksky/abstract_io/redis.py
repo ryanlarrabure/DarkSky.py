@@ -19,15 +19,21 @@ class RedisCache(object):
         self.__strict_redis = strict_redis or redis.StrictRedis(**redis_args)
         
 
-    def set(
+    def insert(
         self,
         key,
-        value
+        value,
+        timeout=None
     ):
         self.__strict_redis.set(key, value)
+        if timeout:
+            self.__strict_redis.expire(key, timeout)
 
     def get(
         self,
         key
     ):
-        return self.__strict_redis.get(key)
+        ret = self.__strict_redis.get(key)
+        if not ret:
+            raise KeyError("Redis doesn't have key '{}'".format(key))
+        return ret
